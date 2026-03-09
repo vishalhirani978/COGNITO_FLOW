@@ -1,0 +1,149 @@
+================================================================================
+                        COGNITOFLOW PROJECT REPORT
+                    AI-Powered Exam Analysis Platform
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+CognitoFlow is an AI-powered exam paper analysis platform built with React,
+TypeScript, and Supabase. The application allows users to upload exam papers
+in text format, automatically extracts topics and questions, and provides
+visual analytics on topic trends and patterns across different years and
+teachers.
+
+TECHNOLOGY STACK
+================================================================================
+Frontend:
+  - React 18.3.1 - UI library
+  - TypeScript 5.5.3 - Type safety
+  - Vite 5.4.2 - Build tool
+  - Tailwind CSS 3.4.1 - Styling
+  - Lucide React 0.344.0 - Icons
+
+Backend/Database:
+  - Supabase (PostgreSQL) - Database and backend services
+
+PROJECT STRUCTURE
+================================================================================
+src/
+├── App.tsx                      # Main application component
+├── main.tsx                     # Entry point
+├── index.css                    # Global styles (Tailwind)
+├── types/
+│   └── paper.ts                 # TypeScript interfaces (Paper, ExamType)
+├── components/
+│   ├── UploadSection.tsx        # File upload component (Supabase integration)
+│   ├── AnalysisDashboard.tsx    # Analysis view with filters
+│   ├── AnalysisView.tsx         # Detailed heatmap analysis
+│   └── HeatmapChart.tsx         # Heatmap visualization component
+├── utils/
+│   ├── paperExtractor.ts        # Topic extraction from exam papers
+│   └── analysis.ts              # Filtering and aggregation utilities
+└── lib/
+    └── supabase.ts              # Supabase client configuration
+
+supabase/
+└── migrations/
+    └── 20251113015108_create_cognitoflow_schema.sql
+
+KEY FEATURES
+================================================================================
+
+1. PAPER UPLOAD
+   - Upload exam papers in .txt format
+   - Metadata fields: Title, Subject, Year, Teacher, Exam Type
+   - Extracts and stores paper content in Supabase
+
+2. TOPIC EXTRACTION
+   - Automatic topic detection from question text
+   - Supports multiple topics: Logic, Set Theory, Relations, Functions,
+     Induction, Combinatorics, Lattice & Poset, Graph Theory,
+     Formal Languages, Number Theory
+   - Estimates question marks based on text length and structure
+   - Keyword-based topic inference
+
+3. ANALYSIS DASHBOARD
+   - Filter by Subject, Teacher, Exam Type, Year Range
+   - Summary cards showing Papers Used, Topics Found, Total Questions,
+     Total Marks
+   - Topic breakdown table with weight percentages
+
+4. HEATMAP VISUALIZATION
+   - Topic trends over years
+   - Teacher comparison view
+   - Color-coded intensity showing marks distribution
+
+DATABASE SCHEMA
+================================================================================
+
+Table: papers
+  - id (uuid, PK) - Unique identifier
+  - title (text) - Paper title
+  - subject (text) - Subject name
+  - year (integer) - Academic year
+  - teacher_name (text) - Teacher name
+  - file_content (text) - Raw paper content
+  - uploaded_at (timestamp) - Upload time
+  - user_id (uuid) - User reference
+
+Table: topics
+  - id (uuid, PK) - Unique identifier
+  - paper_id (uuid, FK) - Reference to papers
+  - topic_name (text) - Topic name
+  - marks (integer) - Marks allocated
+  - question_count (integer) - Number of questions
+  - keywords (text[]) - Associated keywords
+
+Table: analysis_cache
+  - id (uuid, PK) - Unique identifier
+  - cache_key (text) - Hash for cache lookup
+  - analysis_data (jsonb) - Cached analysis results
+  - created_at (timestamp) - Cache creation time
+  - expires_at (timestamp) - Cache expiration
+
+CORE MODULES
+================================================================================
+
+1. paperExtractor.ts
+   - parseSections() - Parse markdown sections from exam text
+   - extractQuestions() - Extract individual questions
+   - estimateQuestionMarks() - Estimate marks based on question text
+   - inferTopics() - Detect topics using keyword matching
+   - aggregateTopicStats() - Aggregate topic statistics
+   - extractTopics() - Main extraction function (public API)
+
+2. analysis.ts
+   - filterPapers() - Filter papers by subject, teacher, exam type, year
+   - aggregateTopics() - Combine topic data from multiple papers
+
+3. AnalysisDashboard.tsx
+   - Filter controls for subject, teacher, exam type, year range
+   - Summary statistics display
+   - Topic breakdown table with percentage weights
+
+4. HeatmapChart.tsx
+   - Dynamic heatmap rendering
+   - Color intensity based on marks distribution
+
+DEPENDENCIES
+================================================================================
+  @supabase/supabase-js: ^2.57.4
+  lucide-react: ^0.344.0
+  react: ^18.3.1
+  react-dom: ^18.3.1
+  @vitejs/plugin-react: ^4.3.1
+  tailwindcss: ^3.4.1
+  typescript: ^5.5.3
+  vite: ^5.4.2
+
+AVAILABLE SCRIPTS
+================================================================================
+  npm run dev      - Start development server
+  npm run build    - Build for production
+  npm run lint     - Run ESLint
+  npm run preview  - Preview production build
+  npm run typecheck - Run TypeScript type checking
+
+================================================================================
+                           END OF PROJECT REPORT
+================================================================================

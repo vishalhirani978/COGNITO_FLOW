@@ -1,0 +1,112 @@
+**Subject:** Discrete Mathematics
+**Exam:** Final Term Examination (Model / Past-Paper Style)
+**Year:** 2025
+**Time Allowed:** 3 Hours
+**Total Marks:** 60
+
+---
+
+## Section A – MCQs (20 Marks)
+
+*Attempt all questions. Each question carries equal marks.*
+
+1. Which of the following propositions is a contradiction?
+   a) p ∧ ¬p
+   b) p ∨ ¬p
+   c) p → p
+   d) ¬(p ∧ q)
+
+2. The negation of the statement "All students passed the exam" is:
+   a) No student passed the exam
+   b) Some students passed the exam
+   c) At least one student did not pass the exam
+   d) All students did not pass the exam
+
+3. If p = False and q = True, then the truth value of (p → q) is:
+   a) True
+   b) False
+   c) Depends on p
+   d) Undefined
+
+4. How many subsets does a set containing 6 elements have?
+   a) 12
+   b) 36
+   c) 64
+   d) 720
+
+5. Which of the following relations is reflexive?
+   a) a < b
+   b) a ≤ b
+   c) a ≠ b
+   d) a > b
+
+6. If A = {1,2} and B = {a,b,c}, then how many functions exist from A to B?
+   a) 5
+   b) 6
+   c) 8
+   d) 9
+
+7. Which of the following is NOT a property of equivalence relations?
+   a) Reflexive
+   b) Symmetric
+   c) Transitive
+   d) Antisymmetric
+
+8. The value of ( \binom{5}{2} ) is:
+   a) 5
+   b) 10
+   c) 15
+   d) 20
+
+---
+
+## Section B – Short Questions (20 Marks)
+
+*Attempt **any five** questions. Each question carries equal marks.*
+
+9. Define a set. Write any two types of sets with examples.
+
+10. What is a tautology? Give one example.
+
+11. Define an equivalence relation. Give a real-life example.
+
+12. What is the difference between injective and surjective functions?
+
+13. Define mathematical induction. Write its two basic steps.
+
+14. What is a lattice? Give one example.
+
+15. Explain the concept of transitive closure of a relation.
+
+---
+
+## Section C – Long Questions (20 Marks)
+
+*Attempt **any two** questions. Each question carries equal marks.*
+
+16. Prove by mathematical induction that:
+    [ 1^2 + 2^2 + 3^2 + \dots + n^2 = \frac{n(n+1)(2n+1)}{6} ]
+
+17. Let A = {1,2,3,4}.
+    a) List all elements of the power set P(A).
+    b) Find the number of proper subsets of A.
+
+18. Draw the Hasse diagram for the partially ordered set (P({a,b}), ⊆). Explain why it is a poset.
+
+19. Explain the Principle of Inclusion and Exclusion. Use it to find the number of integers between 1 and 100 that are divisible by 2 or 5.
+
+---
+
+## Syllabus Coverage
+
+* Propositional Logic
+* Predicate Logic
+* Set Theory
+* Relations and Functions
+* Mathematical Induction
+* Partially Ordered Sets
+* Combinatorics
+
+---
+
+**End of Paper**

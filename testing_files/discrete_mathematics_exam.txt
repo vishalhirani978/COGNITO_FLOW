@@ -1,0 +1,30 @@
+Subject: Discrete Mathematics
+Exam: Final Term Examination
+Year: 2026
+Time Allowed: 3 Hours
+
+Section A (MCQs)
+1. Which of the following is a tautology?
+2. The contrapositive of "If p then q" is:
+3. How many elements are in the power set of a set with 5 elements?
+
+Section B (Short Questions)
+4. Define a relation. Give an example.
+5. What is a partially ordered set (poset)?
+6. State and explain De Morgan’s laws.
+
+Section C (Long Questions)
+7. Prove by mathematical induction that:
+   1 + 2 + 3 + ... + n = n(n+1)/2
+
+8. Draw the Hasse diagram of the divisibility relation on {1,2,3,6}.
+
+9. Explain the principle of inclusion and exclusion with an example.
+
+Topics Covered:
+- Propositional Logic
+- Set Theory
+- Relations and Functions
+- Mathematical Induction
+- Partially Ordered Sets
+- Combinatorics
