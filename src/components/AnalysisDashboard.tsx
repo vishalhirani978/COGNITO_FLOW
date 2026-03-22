@@ -47,7 +47,7 @@ export default function AnalysisDashboard({ papers }: Props) {
           {teachers.map((t) => <option key={t}>{t || "Unknown"}</option>)}
         </select>
 
-        <select className="border rounded-lg px-3 py-2" value={examType} onChange={(e) => setExamType(e.target.value as any)}>
+        <select className="border rounded-lg px-3 py-2" value={examType} onChange={(e) => setExamType(e.target.value as ExamType | "All")}>
           <option>All</option>
           <option>Mid</option>
           <option>Final</option>

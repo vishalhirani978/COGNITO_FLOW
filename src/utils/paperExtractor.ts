@@ -1,7 +1,7 @@
 /**
  * Exam Paper Extraction System
  * Parses raw exam text and extracts structured topic/question data
- * Heuristic-based, ML-ready for future enhancements
+ * Question-Paper-Aware: Identifies questions by headers, associates marks, preserves integrity
  */
 
 import { Paper, ExamType } from "../types/paper";
@@ -11,7 +11,7 @@ import { Paper, ExamType } from "../types/paper";
 // ============================================================================
 
 interface Section {
-  id: string; // "A", "B", "C", etc.
+  id: string;
   title: string;
   marks: number;
   startLine: number;
@@ -22,12 +22,27 @@ interface Section {
 interface Question {
   number: number;
   text: string;
+  rawQuestionBlock: string;
   section: string;
   marks: number;
-  topics: string[]; // inferred topics
+  topics: string[];
 }
 
 const SECTION_PATTERN = /^##\s*Section\s+([A-Z])\s*–?\s*(.+?)(?:\((\d+)\s*Marks?\))?/im;
+
+const QUESTION_HEADER_PATTERNS = [
+  /^Q\s*(\d+)[.)]\s*/i,
+  /^Question\s*(\d+)[.)]\s*/i,
+  /^(\d+)[.)]\s*/,
+];
+
+const MARKS_PATTERNS = [
+  /\[(\d+)\s*Marks?\s*\]/i,
+  /\((\d+)\s*Marks?\)/i,
+  /\{\s*(\d+)\s*Marks?\s*\}/i,
+  /\[\s*(\d+)\s*\]/,
+  /\(\s*(\d+)\s*\)(?!\s*\w)/,
+];
 
 const TOPIC_KEYWORDS: Record<string, string[]> = {
   Logic: ["proposition", "truth", "negation", "logical", "tautology", "contradiction"],
@@ -107,71 +122,132 @@ function parseSections(text: string): Section[] {
 }
 
 /**
- * Extract questions from section text
+ * Extract questions from section text using Question-Paper-Aware logic
+ * - Identifies questions by headers (Q1, Question 1, 1.)
+ * - Associates marks with each question
+ * - Preserves question integrity (never splits based on character count)
  */
 function extractQuestions(
   sectionText: string,
   sectionId: string
 ): Question[] {
   const questions: Question[] = [];
-
-  // Match numbered questions: "1. Question text"
-  // Using split approach to avoid regex exec infinite loop
-  const questionMatches = sectionText.match(/^\s*\d+\.\s+.+?(?=\n\s*\d+\.|$)/gms);
   
-  if (!questionMatches) return questions;
+  const lines = sectionText.split("\n");
+  let currentQuestion: {
+    number: number;
+    lines: string[];
+    rawBlock: string;
+  } | null = null;
 
-  for (const questionBlock of questionMatches) {
-    const match = questionBlock.match(/^\s*(\d+)\.\s+(.+)$/ms);
-    if (!match) continue;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const questionStart = identifyQuestionHeader(line);
 
-    const number = Number(match[1]);
-    const text = (match[2] || "").trim();
+    if (questionStart !== null) {
+      if (currentQuestion) {
+        const fullText = currentQuestion.lines.join(" ").trim();
+        const extractedMarks = extractMarks(fullText);
+        const marks = extractedMarks === -1 ? estimateQuestionMarks(fullText) : extractedMarks;
+        
+        questions.push({
+          number: currentQuestion.number,
+          text: cleanQuestionText(fullText),
+          rawQuestionBlock: currentQuestion.rawBlock.trim(),
+          section: sectionId,
+          marks,
+          topics: inferTopics(fullText),
+        });
+      }
 
-    if (text.length < 3) continue; // skip garbage
+      currentQuestion = {
+        number: questionStart,
+        lines: [line.replace(/^(\s*)(Q\d+[.)]|Question\s*\d+[.)]|\d+[.)])\s*/i, "").trim()],
+        rawBlock: line,
+      };
+    } else if (currentQuestion) {
+      currentQuestion.lines.push(line);
+      currentQuestion.rawBlock += "\n" + line;
+    }
+  }
 
-    const question: Question = {
-      number,
-      text,
+  if (currentQuestion) {
+    const fullText = currentQuestion.lines.join(" ").trim();
+    const extractedMarks = extractMarks(fullText);
+    const marks = extractedMarks === -1 ? estimateQuestionMarks(fullText) : extractedMarks;
+    
+    questions.push({
+      number: currentQuestion.number,
+      text: cleanQuestionText(fullText),
+      rawQuestionBlock: currentQuestion.rawBlock.trim(),
       section: sectionId,
-      marks: estimateQuestionMarks(text),
-      topics: inferTopics(text),
-    };
-
-    questions.push(question);
+      marks,
+      topics: inferTopics(fullText),
+    });
   }
 
   return questions;
 }
 
 /**
- * Estimate marks for a question based on section structure and text length
+ * Identify if a line contains a question header
+ * Returns question number if found, null otherwise
+ */
+function identifyQuestionHeader(line: string): number | null {
+  for (const pattern of QUESTION_HEADER_PATTERNS) {
+    const match = line.match(pattern);
+    if (match) {
+      return Number(match[1]);
+    }
+  }
+  return null;
+}
+
+/**
+ * Extract marks from question text using multiple patterns
+ * Returns extracted marks or -1 if not found
+ */
+function extractMarks(text: string): number {
+  for (const pattern of MARKS_PATTERNS) {
+    const match = text.match(pattern);
+    if (match) {
+      return Number(match[1]);
+    }
+  }
+  return -1;
+}
+
+/**
+ * Clean question text by removing marks annotations
+ */
+function cleanQuestionText(text: string): string {
+  let cleaned = text;
+  for (const pattern of MARKS_PATTERNS) {
+    cleaned = cleaned.replace(pattern, "").trim();
+  }
+  return cleaned.replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Estimate marks when explicit marks are not found in question text
+ * Used as fallback when marks patterns don't match
  */
 function estimateQuestionMarks(questionText: string): number {
-  // MCQ indicator
-  if (
-    questionText.match(/^\s*a\)/) ||
-    questionText.match(/^\s*\(a\)/) ||
-    questionText.includes("choose") ||
-    questionText.toLowerCase().includes("mcq")
-  ) {
-    return 1; // MCQs typically 1 mark each
+  const mcqPatterns = [/^\s*a\)/, /^\s*\(a\)/, /choose/i, /mcq/i];
+  if (mcqPatterns.some(p => p.test(questionText))) {
+    return 1;
   }
 
-  // Short question (< 200 chars)
+  const questionLower = questionText.toLowerCase();
+  if (questionLower.match(/^(prove|explain|discuss|derive|show)/) || questionText.length > 300) {
+    return 5;
+  }
+
   if (questionText.length < 200) {
     return 2;
   }
 
-  // Long question (> 300 chars, includes "prove", "explain", "discuss")
-  if (
-    questionText.length > 300 ||
-    questionText.toLowerCase().match(/^(prove|explain|discuss|derive|show)/)
-  ) {
-    return 5;
-  }
-
-  return 3; // default medium question
+  return 3;
 }
 
 /**
