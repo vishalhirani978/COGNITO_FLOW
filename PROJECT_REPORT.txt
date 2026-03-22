@@ -1,15 +1,23 @@
 ================================================================================
-                        COGNITOFLOW PROJECT REPORT
-                    AI-Powered Exam Analysis Platform
+                           COGNITOFLOW PROJECT REPORT
+                       AI-Powered Exam Analysis Platform
 ================================================================================
 
 PROJECT OVERVIEW
 ================================================================================
-CognitoFlow is an AI-powered exam paper analysis platform built with React,
-TypeScript, and Supabase. The application allows users to upload exam papers
-in text format, automatically extracts topics and questions, and provides
-visual analytics on topic trends and patterns across different years and
-teachers.
+CognitoFlow is an AI-powered exam paper analysis platform that helps educators
+and students gain insights from exam papers. The application allows users to
+upload exam papers in text format, automatically extracts topics and questions,
+and provides visual analytics on topic trends and patterns across different
+years and teachers.
+
+OBJECTIVES
+================================================================================
+- Automate topic extraction from exam papers
+- Visualize topic distribution and trends over years
+- Compare question patterns across different teachers
+- Help identify high-frequency topics for better exam preparation
+- Provide data-driven insights for curriculum planning
 
 TECHNOLOGY STACK
 ================================================================================
@@ -21,7 +29,7 @@ Frontend:
   - Lucide React 0.344.0 - Icons
 
 Backend/Database:
-  - Supabase (PostgreSQL) - Database and backend services
+  - Supabase (PostgreSQL) - Database and authentication
 
 PROJECT STRUCTURE
 ================================================================================
@@ -30,21 +38,21 @@ src/
 ├── main.tsx                     # Entry point
 ├── index.css                    # Global styles (Tailwind)
 ├── types/
-│   └── paper.ts                 # TypeScript interfaces (Paper, ExamType)
+│   └── paper.ts                 # TypeScript interfaces
 ├── components/
-│   ├── UploadSection.tsx        # File upload component (Supabase integration)
+│   ├── UploadSection.tsx        # File upload component
 │   ├── AnalysisDashboard.tsx    # Analysis view with filters
 │   ├── AnalysisView.tsx         # Detailed heatmap analysis
-│   └── HeatmapChart.tsx         # Heatmap visualization component
+│   └── HeatmapChart.tsx         # Heatmap visualization
 ├── utils/
-│   ├── paperExtractor.ts        # Topic extraction from exam papers
-│   └── analysis.ts              # Filtering and aggregation utilities
+│   ├── paperExtractor.ts        # Topic extraction engine
+│   └── analysis.ts              # Filtering and aggregation
 └── lib/
-    └── supabase.ts              # Supabase client configuration
+    └── supabase.ts              # Supabase client
 
 supabase/
 └── migrations/
-    └── 20251113015108_create_cognitoflow_schema.sql
+    └── create_cognitoflow_schema.sql
 
 KEY FEATURES
 ================================================================================
@@ -52,20 +60,20 @@ KEY FEATURES
 1. PAPER UPLOAD
    - Upload exam papers in .txt format
    - Metadata fields: Title, Subject, Year, Teacher, Exam Type
-   - Extracts and stores paper content in Supabase
+   - Stores paper content in Supabase database
 
 2. TOPIC EXTRACTION
-   - Automatic topic detection from question text
-   - Supports multiple topics: Logic, Set Theory, Relations, Functions,
-     Induction, Combinatorics, Lattice & Poset, Graph Theory,
-     Formal Languages, Number Theory
-   - Estimates question marks based on text length and structure
-   - Keyword-based topic inference
+   - Automatic topic detection using keyword matching
+   - Supports 10+ topic categories including:
+     * Logic, Set Theory, Relations, Functions
+     * Induction, Combinatorics, Graph Theory
+     * Formal Languages, Number Theory, Lattice & Poset
+   - Estimates question marks based on text analysis
+   - Identifies question sections and headers
 
 3. ANALYSIS DASHBOARD
    - Filter by Subject, Teacher, Exam Type, Year Range
-   - Summary cards showing Papers Used, Topics Found, Total Questions,
-     Total Marks
+   - Summary cards: Papers, Topics, Questions, Total Marks
    - Topic breakdown table with weight percentages
 
 4. HEATMAP VISUALIZATION
@@ -77,27 +85,27 @@ DATABASE SCHEMA
 ================================================================================
 
 Table: papers
-  - id (uuid, PK) - Unique identifier
-  - title (text) - Paper title
-  - subject (text) - Subject name
-  - year (integer) - Academic year
-  - teacher_name (text) - Teacher name
-  - file_content (text) - Raw paper content
+  - id (uuid, PK)          - Unique identifier
+  - title (text)           - Paper title
+  - subject (text)         - Subject name
+  - year (integer)         - Academic year
+  - teacher_name (text)    - Teacher name
+  - file_content (text)    - Raw paper content
   - uploaded_at (timestamp) - Upload time
-  - user_id (uuid) - User reference
+  - user_id (uuid)         - User reference
 
 Table: topics
-  - id (uuid, PK) - Unique identifier
-  - paper_id (uuid, FK) - Reference to papers
-  - topic_name (text) - Topic name
-  - marks (integer) - Marks allocated
+  - id (uuid, PK)          - Unique identifier
+  - paper_id (uuid, FK)    - Reference to papers
+  - topic_name (text)      - Topic name
+  - marks (integer)        - Marks allocated
   - question_count (integer) - Number of questions
-  - keywords (text[]) - Associated keywords
+  - keywords (text[])      - Associated keywords
 
 Table: analysis_cache
-  - id (uuid, PK) - Unique identifier
-  - cache_key (text) - Hash for cache lookup
-  - analysis_data (jsonb) - Cached analysis results
+  - id (uuid, PK)          - Unique identifier
+  - cache_key (text)       - Hash for cache lookup
+  - analysis_data (jsonb)  - Cached results
   - created_at (timestamp) - Cache creation time
   - expires_at (timestamp) - Cache expiration
 
@@ -105,45 +113,62 @@ CORE MODULES
 ================================================================================
 
 1. paperExtractor.ts
-   - parseSections() - Parse markdown sections from exam text
-   - extractQuestions() - Extract individual questions
-   - estimateQuestionMarks() - Estimate marks based on question text
-   - inferTopics() - Detect topics using keyword matching
+   - parseSections()      - Parse markdown sections from exam text
+   - extractQuestions()   - Extract individual questions
+   - estimateQuestionMarks() - Estimate marks from text
+   - inferTopics()       - Detect topics using keywords
    - aggregateTopicStats() - Aggregate topic statistics
-   - extractTopics() - Main extraction function (public API)
+   - extractTopics()      - Main extraction function
 
 2. analysis.ts
-   - filterPapers() - Filter papers by subject, teacher, exam type, year
-   - aggregateTopics() - Combine topic data from multiple papers
+   - filterPapers()      - Filter by subject, teacher, type, year
+   - aggregateTopics()   - Combine topic data from papers
 
 3. AnalysisDashboard.tsx
-   - Filter controls for subject, teacher, exam type, year range
+   - Filter controls for all metadata fields
    - Summary statistics display
-   - Topic breakdown table with percentage weights
+   - Topic breakdown with percentages
 
 4. HeatmapChart.tsx
    - Dynamic heatmap rendering
-   - Color intensity based on marks distribution
+   - Color intensity based on marks
 
 DEPENDENCIES
 ================================================================================
-  @supabase/supabase-js: ^2.57.4
-  lucide-react: ^0.344.0
+Frontend:
   react: ^18.3.1
   react-dom: ^18.3.1
-  @vitejs/plugin-react: ^4.3.1
-  tailwindcss: ^3.4.1
-  typescript: ^5.5.3
+  lucide-react: ^0.344.0
+
+Backend/Services:
+  @supabase/supabase-js: ^2.57.4
+
+Build Tools:
   vite: ^5.4.2
+  typescript: ^5.5.3
+  tailwindcss: ^3.4.1
+  @vitejs/plugin-react: ^4.3.1
 
-AVAILABLE SCRIPTS
+DEVELOPMENT SCRIPTS
 ================================================================================
-  npm run dev      - Start development server
-  npm run build    - Build for production
-  npm run lint     - Run ESLint
-  npm run preview  - Preview production build
-  npm run typecheck - Run TypeScript type checking
+  npm run dev        - Start development server (localhost:5173)
+  npm run build      - Build for production
+  npm run preview    - Preview production build
+  npm run lint       - Run ESLint
+  npm run typecheck  - Run TypeScript type checking
+
+ENVIRONMENT VARIABLES
+================================================================================
+  VITE_SUPABASE_URL=your_supabase_url
+  VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+DEPLOYMENT
+================================================================================
+  - Frontend deployed on Vercel
+  - Database hosted on Supabase
+  - Build command: npm run build
+  - Output directory: dist
 
 ================================================================================
-                           END OF PROJECT REPORT
+                            END OF PROJECT REPORT
 ================================================================================
